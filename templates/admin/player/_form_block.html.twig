@@ -1,0 +1,5 @@
+<form method="post" action="{{ path('admin.player.block', {id: player.id}) }}"
+      onsubmit="return confirm('Êtes-vous sur de vouloir {{ message }} le joueur ?')" class="d-inline">
+    <input type="hidden" name="_token" value="{{ csrf_token('block' ~ player.id) }}">
+    <button type="submit" class="btn btn-block btn-{{ classButton }} btn-flat">{{ button | default('Modifier ') }}</button>
+</form>

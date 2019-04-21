@@ -1,0 +1,213 @@
+{% extends 'admin.base.html.twig' %}
+
+{% block title %}Admin index joueurs{% endblock %}
+{% block titre %}Liste des joueurs{% endblock %}
+{% block ariane %}
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+        <li class="active">Joueurs</li>
+    </ol>
+{% endblock %}
+{% block body %}
+
+    <table class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+        <thead>
+            <tr role="row">
+                <th></th>
+                <th class="sorting_asc text-center align-middle" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Login</th>
+                <th class="sorting_asc text-center align-middle" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Email</th>
+                <th class="sorting_asc text-center align-middle" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Blocage</th>
+                <th class="sorting_asc text-center align-middle" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Points</th>
+                <th class="sorting_asc text-center align-middle" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for player in players %}
+            <tr role="row">
+                <td class="align-middle text-center">{% if player.connexion %}<span class="label bg-green">Connecté</span>{% else %}<span class="label bg-red">Déconnecté</span>{% endif %}</td>
+                <td class="align-middle text-center">{{ player.username }}</td>
+                <td class="align-middle text-center">{{ player.email }}</td>
+                <td class="align-middle text-center">
+                    {% if player.blocage %}
+                        {{ include('admin/player/_form_block.html.twig', {id: player.id, button: 'Débloquer', classButton :'success btn-xs', message : 'débloquer'}) }}
+                    {% else %}
+                        {{ include('admin/player/_form_block.html.twig', {id: player.id, button: 'Bloquer', classButton :'warning btn-xs', message: 'bloquer'}) }}
+                    {% endif %}
+                </td>
+                <td class="align-middle text-center">{{ player.points }}</td>
+                <td class="align-middle text-center">
+                        <a href="{{ path('admin.player.show', {'id': player.id}) }}" class="btn bg-gray btn-flat btn-sm">Voir</a>
+                        <a href="{{ path('admin.player.edit', {'id': player.id}) }}" class="btn bg-gray btn-flat btn-sm">Modifier</a>
+                        {{ include('admin/player/_delete_form.html.twig') }}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="10">Pas de joueurs inscrits</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+
+    <div class="row">
+        <div class="col-sm-4">
+
+        </div>
+        <div class="col-sm-4">
+                {{ knp_pagination_render(players) }}
+        </div>
+        <div class="col-sm-4 text-center">
+            <a href="{{ path('admin.player.new') }}" class="pull-right btn bg-navy btn-flat margin">Nouveau joueur</a>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Donut chart -->
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-trophy"></i>
+
+                    <h3 class="box-title">Joueurs Connectés - {{ connect }}</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div id="donut-chart" style="height: 300px;"></div>
+                </div>
+                <!-- /.box-body-->
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Donut chart -->
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-trophy"></i>
+
+                    <h3 class="box-title">Derniers Joueurs Connectés</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <table class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                        <tbody>
+                        {% for player in player %}
+                            <tr role="row">
+                                <td><a href="{{ path('admin.player.show', {'id': player.id}) }}" class="btn bg-gray btn-flat btn-sm">{{ player.username }}</a></td><td>{{ player.points }}</td>
+                            </tr>
+                        {% else %}
+
+                            <tr role="row">
+                                <td>Aucun Joueur connecté</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body-->
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            /*
+             * DONUT CHART
+             * -----------
+             */
+
+            var donutData = [
+                {label: '', data: {{ connect }}, color: '#62a05e'},
+                {label: '', data: {{ disconnect }}, color: '#cb3434'}
+            ];
+            $.plot('#donut-chart', donutData, {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        innerRadius: 0.5,
+                        label: {
+                            show: true,
+                            radius: 2 / 3,
+                            formatter: labelFormatter,
+                            threshold: 0.1
+                        }
+
+                    }
+                },
+                legend: {
+                    show: false
+                }
+            });
+
+            var donutData = [
+                {label: 'Clan', data: 15, color: '#50a09d'},
+                {label: 'Ninjas', data: 5, color: '#5380a0'},
+                {label: 'Abandon', data: 10, color: '#54a072'}
+            ];
+            $.plot('#donut-chart2', donutData, {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        innerRadius: 0.5,
+                        label: {
+                            show: true,
+                            radius: 2 / 3,
+                            formatter: labelFormatter,
+                            threshold: 0.1
+                        }
+
+                    }
+                },
+                legend: {
+                    show: false
+                }
+            })
+            /*
+             * END DONUT CHART
+             */
+
+        })
+
+        /* END BAR CHART */
+        function labelFormatter(label, series) {
+            return '<div style="font-size:13px; text-align:center; padding:2px; color: #fff; font-weight: 600;">'
+                + label
+                + '<br>'
+                + Math.round(series.percent) + '%</div>'
+        }
+    </script>
+    <!-- ChartJS -->
+    <script src="{{ asset('bower_components/chart.js/Chart.js') }}"></script>
+    <!-- FastClick -->
+    <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="{{ asset('dist/js/demo.js') }}"></script>
+
+    <!-- FLOT CHARTS -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.js') }}"></script>
+    <!-- FLOT RESIZE PLUGIN - allows the chart to redraw when the window is resized -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.resize.js') }}"></script>
+    <!-- FLOT PIE PLUGIN - also used to draw donut charts -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.pie.js') }}"></script>
+    <!-- FLOT CATEGORIES PLUGIN - Used to draw bar charts -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.categories.js') }}"></script>
+{% endblock %}
+

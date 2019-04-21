@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}CyberNative - Page Joueur{% endblock %}
+
+{% block css %}
+    <link href="{{ "css/comptejoueur.css" }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    <nav>
+        <a href="{{ path('logout') }}">Deconnexion</a>
+    </nav>
+    <article id="joueur">
+        <div>
+            <h1>Bonjour <span id="nomjoueur">{{ player.username }}</span></h1>
+            <p>Date d'inscription : <span
+                        id="dateIns">{{ player.dateInscription ? player.dateInscription|date('d / m / Y') : '' }}</span>
+            </p>
+            <p>Dernière connexion : <span
+                        id="derniereCo">{{ player.dateCo ? player.dateCo|date('d / m / Y') : '' }}</span></p><br>
+        </div>
+    </article>
+    <div id="ami">
+        <h1>Communauté</h1>
+        <div>
+            <ul>
+                <h2>Mes amis</h2>
+                {% for friend in friends %}
+                    <li>{{ friend.username }}</li>
+                {% endfor %}
+            </ul>
+            <ul>{% if numberInvitation == 1 %} 1 Invitation en attente{% else %}{{ numberInvitation }} Invitations en attente{% endif %}
+                    {% for invitation in invitations %}
+                        <li>{{ invitation.username.username }}
+                            : {{ include('player/friend/_accept_demande.html.twig') }}{{ include('player/friend/_delete_demande.html.twig') }}
+                        </li>
+                    {% else %}
+                        <li>Aucune invitation</li>
+                    {% endfor %}
+            </ul>
+            <ul>
+                <h2>Inviter un ami</h2>
+                <form action="{{ path('player.index') }}" method="POST">
+                    <div>
+                        <select name="friend" id="adversaire" style="width: 100%; padding:5px; margin-bottom: 5px">
+                            <option value="">Choisir</option>
+                            {% for newFriend in newFriends %}
+                                <option value="{{ newFriend.id }}">{{ newFriend.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input type="hidden" name="_token" value="{{ csrf_token('add_friend' ~ player.id) }}">
+                    <div>
+                        <input type="submit" value="Ajouter un ami" id="acref"/>
+                    </div>
+                </form>
+            </ul>
+        </div>
+    </div>
+    <div id="gestion">
+        <h1>Parties en cours</h1>
+        <table id="partiesEnCours">
+            <thead>
+            <tr>
+                <th>Numéro de partie</th>
+                <th>Adversaire</th>
+                <th>Numéro de tour</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for partie in partiesEnCours1 %}
+                <tr>
+                    <td>{{ partie.id }}</td>
+                    <td>{{ partie.j2.username }}</td>
+                    <td>{{ partie.tour }}</td>
+                    <td>{% if partie.tourJoueur == 1 %}<a id="acref" href="{{ path("partie.affiche.jeu", {
+                            'partie' : partie.id}) }}">Jouer</a>{% else %}<a id="acref"
+                                                                             href="{{ path('partie.affiche.jeu', {'partie': partie.id}) }}">
+                                Voir partie</a>{% endif %}</td>
+                </tr>
+            {% endfor %}
+            {% for partie in partiesEnCours2 %}
+                <tr>
+                    <td>{{ partie.id }}</td>
+                    <td>{% if partie.j1 %}{{ partie.j1.username }}{% else %}En attente d'adversaire{% endif %}</td>
+                    <td>{{ partie.tour }}</td>
+                    <td>{% if partie.j1 %}{% if partie.tourJoueur == 2 %}<a id="acref"
+                                                                            href="{{ path('partie.affiche.jeu', {'partie': partie.id}) }}">
+                                Jouer</a>{% else %}<a id="acref"
+                                                      href="{{ path('partie.affiche.jeu', {'partie': partie.id}) }}">
+                                Voir partie</a>{% endif %}{% else %}En attente{% endif %}</td>
+                </tr>
+            {% endfor %}
+            {% if not partiesEnCours1 and not partiesEnCours2 %}
+                <tr>
+                    <td>Aucune partie en cours</td>
+                </tr>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <div id="table">
+        <ul>
+            <h2>Liste des joueurs en ligne</h2>
+
+            <form method="post" action="{{ path('jouer.distribuer') }}" style="margin-bottom: 10px">
+                <select name="adversaire" style="padding:5px">
+                    <option value="" style="padding:5px">Choisir Joueur</option>
+                    {% for adv in joueursCo %}
+                        <option value="{{ adv.id }}" style="padding:5px">{{ adv.username }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="_token" value="{{ csrf_token('joueurCo' ~ player.id) }}">
+                <button id="acref">Lancer la Partie</button>
+            </form>
+
+        </ul>
+        <ul>
+            <h2>Liste des tables ouvertes</h2>
+            {{ include('partie/_nouvelle-table.html.twig') }}
+
+            {% for partie in rejoindreTable %}
+                <li>{{ partie.j2.username }}
+                    <button id="join">{{ include('partie/_rejoindre-table.html.twig', {'button_label' : partie.j2.username}) }}</button>
+                </li>
+            {% endfor %}
+        </ul>
+        <ul>
+            <h2>Créer partie avec Ami</h2>
+            <form method="post" action="{{ path('jouer.distribuer') }}">
+                <select name="adversaire" style="padding: 5px">
+                    <option value="" style="padding:5px">Choisir Joueur</option>
+                    {% for adv in friends %}
+                        <option value="{{ adv.id }}" style="padding:5px">{{ adv.username }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="_token" value="{{ csrf_token('ami' ~ player.id) }}">
+                <button id="acref">Lancer la partie</button>
+            </form>
+        </ul>
+    </div>
+    <div id="stats">
+        <h1>Statistiques et classement</h1>
+        <div style="width:100%; display: flex; justify-content: space-around">
+            <ul>
+                <li>Classement : <span id="rank">{{ classement }}</span></li>
+                <li>Nombre de parties jouées : <span id="nbParties">{{ partiesJoues }}</span></li>
+                <li>Nombre de parties en cours : <span id="nbEnCours">{{ partiesEnCours }}</span></li>
+            </ul>
+            <ul>
+                <li>Parties gagnées : <span id="win"></span>{{ gagne }}</li>
+                <li>Parties perdues : <span id="lose"></span>{{ perdu }}</li>
+            </ul>
+        </div>
+        <table style="width:100%">
+            <tr>
+                <th>Date de début de partie</th>
+                <th>Date de fin de partie</th>
+                <th>Adversaires rencontrés</th>
+                <th>Résultat</th>
+                <th>Durée de la partie</th>
+            </tr>
+            {% for partie in partieFinie %}
+            <tr>
+                <td>{{ partie.dateDebut ? partie.dateDebut|date('d / m / Y') : '' }}</td>
+                <td>{{ partie.dateFin ? partie.dateFin|date('d / m / Y') : '' }}</td>
+                <td>{% if partie.j1.id == player.id %}{{ partie.j2.username }}{% else %}{{ partie.j1.username }}{% endif %}</td>
+                <td>{% if (partie.j1.id == player.id and partie.gagnant == 1) or (partie.j2.id == player.id and partie.gagnant == 2)%}Victoire{% else %}Défaite{% endif %}</td>
+                <td>{% set difference = partie.dateDebut.diff(partie.dateFin) %}
+                    {% set leftDays = difference.days %}
+                    {% if leftDays == 1 %}
+                        1 jour
+                    {% else %}
+                        {{ leftDays }} jours
+                    {% endif %}</td>
+            </tr>
+                {% else %}
+                    <tr>
+                        <td>Aucune partie finie</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% block title %}Cybernative - Inscription{% endblock %}
+
+{% block css %}
+    <link href="{{ "css/style.css" }}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    <div class="log">
+        <img src="{{ asset('images/site/cybernative-logo.svg') }}" alt="Logo Cybernative">
+        {{ include('player/_form.html.twig') }}
+        <div class="not-member">
+            <span>Vous possédez déjà un compte ?</span>
+            <a href="{{ path('login') }}">Connectez-vous ici !</a>
+        </div>
+        <a class="back" href="{{ path('home') }}">&#8636; Retour à la page d'accueil</a>
+    </div>
+{% endblock %}

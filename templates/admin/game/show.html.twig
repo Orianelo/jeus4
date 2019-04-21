@@ -1,0 +1,51 @@
+{% extends 'admin.base.html.twig' %}
+
+{% block title %}Admin Partie n°{{ game.id }}{% endblock %}
+{% block titre %}{% endblock %}
+{% block ariane %}
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+        <li><a href="{{ path('admin.player.index') }}"><i class="fa fa-gamepad"></i>Parties</a></li>
+        <li class="active">Partie n°{{ game.id }}</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+    <h1>Partie n°{{ game.id }}<span></span></h1>
+    <div class="row margin">
+        <div class="pull-left">{% if game.etat %}<span class="label bg-green">Partie Terminée</span>{% else %}<span class="label bg-yellow">Partie En Cours</span>{% endif %} - Débutée le {{ game.dateDebut ? game.dateDebut|date('d / m / Y') : '' }}</div>
+        <div class="pull-right">{% if game.etat==false %}Tour n°{{ game.tour }} - {% if game.tourJoueur==1 %}{% if game.j1 %}{{ game.j1.username }}{% else %}Pas de joueur{% endif %}{% else %}{{ game.j2.username }}{% endif %} - joué il y a {% set difference = game.dateDebut.diff(game.dateEnCours) %}
+            {% set leftDays = difference.days %}
+            {% if leftDays == 1 %}
+                1 jour
+            {% else %}
+                {{ leftDays }} jours
+            {% endif %}{% endif %}</div>
+    </div>
+    <div class="row   margin">
+        <div class="col-sm-5"><h4 class="text-light-blue text-right">{% if game.j1 %}{{ game.j1.username }}{% else %}-{% endif %}</h4></div>
+        <div class="col-sm-2"><h5 class="text-center">VS</h5></div>
+        <div class="col-sm-5"><h4 class="text-light-blue text-left">{{ game.j2.username }}</h4></div>
+    </div>
+    {% if game.etat %}
+        <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4 bg-green color-palette">
+                <h3 class="text-center">Gagnant :<br>{% if game.gagnant == 1 %}{% if game.j1 %}{{ game.j1.username }}{% else %}-{% endif %}{% else %}{{ game.j2.username }}{% endif %}</h3>
+                <h4 class="text-center">Fin le : {{ game.dateFin ? game.dateFin|date('d / m / Y') : '' }}</h4>
+                <h4 class="text-center">Victoire {% if game.typeVictoire == 1 %}par éliminations de tous les héros adverses{% elseif game.typeVictoire==2 %}en ayant atteint le clan opposé{% else %}par abandon de l'adversaire{% endif %}</h4>
+            </div>
+            <div class="col-sm-4"></div>
+        </div>
+    {% endif %}
+    <div class="row text-center margin">
+        <div class="row pull-right ">
+            <div class="col-xs-6">
+                <a href="{{ path('admin.game.edit', {'id': game.id}) }}" class="btn bg-gray btn-flat">Modifier</a>
+            </div>
+            <div class="col-xs-6">
+                {{ include('admin/game/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

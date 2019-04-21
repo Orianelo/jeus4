@@ -1,0 +1,4 @@
+<form method="post" action="{{ path('partie.rejoindre-table', {'partie': partie.id}) }}" style="display: inline">
+    <input type="hidden" name="_token" value="{{ csrf_token('rejoindreTable' ~ player.id) }}">
+    <button id="acref">Rejoindre</button>
+</form>

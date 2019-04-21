@@ -1,0 +1,44 @@
+<div class="box box-primary">
+    <div class="box-body">
+        {{ form_start(form) }}
+        <div class="row">
+            <div class="form-group col-xs-6">
+                {{ form_row(form.username) }}
+            </div>
+            <div class="form-group col-xs-6">
+                {{ form_row(form.email) }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-8">
+                <div class="form-group">
+                    {{ form_row(form.points) }}
+                </div>
+            </div>
+            <div class="col-xs-2">
+                <div class="form-group">
+                    <div class="input-group date">
+                        {{ form_row(form.date_inscription) }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group date">
+                        {{ form_row(form.date_co) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-2">
+                <div class="form-group">
+                    {{ form_row(form.connexion) }}
+                </div>
+                <div class="form-group">
+                    {{ form_row(form.blocage) }}
+                </div>
+            </div>
+        </div>
+        <button class="btn bg-gray btn-flat btn-sm pull-right">{{ button_label|default('Enregistrer') }}</button>
+        {{ form_end(form) }}
+    </div>
+</div>
+
+

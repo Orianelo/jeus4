@@ -1,0 +1,183 @@
+@font-face {
+    font-family: "Blender Pro Book";
+    src: url("../fonts/BlenderProBook.ttf") format("truetype");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+body {
+    height: 100vh;
+    padding-top: 7.5vh;
+    background-image: url(../images/site/cyberpunk.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    font-family: 'Blender Pro Book', sans-serif;
+}
+
+/* Accueil */
+
+.logo {
+    display: block;
+    max-width: 350px;
+    margin: auto;
+}
+
+.gestion {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 20px 35px;
+    color: #ff00ff;
+    text-transform: uppercase;
+    font-size: 2rem;
+}
+
+.main-block {
+    display: flex;
+    justify-content: space-around;
+    height: 40vh;
+    margin-top: 5vh;
+    padding: 0 5vw;
+}
+
+.synopsis {
+    width: 40vw;
+    height: 100%;
+    padding: 20px 30px;
+    background-color: rgba(0, 0, 0, 0.65);
+}
+
+.synopsis h2 {
+    color: #00ffff;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.synopsis p {
+    color: #fff;
+    font-size: 1.15rem;
+}
+
+.rules {
+    width: 40vw;
+    height: 100%;
+    overflow: hidden;
+}
+
+.rules video {
+    width: 100%;
+    height: auto;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 5vh;
+}
+
+.buttons a {
+    min-width: 175px;
+    text-align: center;
+    font-size: 1.5rem;
+    margin: 0 20px;
+    padding: 15px 0;
+    background-color: cyan;
+    transition: .2s ease-in-out;
+}
+
+.buttons a:hover {
+    background-color: transparent;
+    color: #00ffff;
+}
+
+/* Connexion & Inscription */
+
+.log {
+    width: 40vw;
+    margin: 7.5vh auto 0 auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.65);
+}
+
+.log img {
+    display: block;
+    max-width: 200px;
+    margin: auto;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px;
+    padding: 0 50px;
+}
+
+form input:not([type="submit"]) {
+    width:50%;
+    color: white;
+    font-family: inherit;
+    font-size: 1.25rem;
+    background-color: transparent;
+    border: none;
+    border-bottom: solid 2px #00ffff;
+    margin-bottom: 15px;
+}
+
+form a {
+    text-align: right;
+    color: #00ffff;
+}
+
+.checkspam input[type="checkbox"] {
+    border-color: #00ffff;
+}
+
+.checkspam label {
+    color: #fff;
+}
+
+form input[type="submit"] {
+    width: 150px;
+    margin: 35px auto 0 auto;
+    padding: 15px;
+    font-family: inherit;
+    font-size: 1.25rem;
+    background-color: #00ffff;
+    border: none;
+    cursor: pointer;
+}
+
+form input[type="submit"]:hover {
+    background-color: transparent;
+    color: #00ffff;
+}
+
+.not-member {
+    display: flex;
+    flex-direction: column;
+    margin-top: 35px;
+    margin-bottom: 50px;
+    text-align: center;
+}
+
+.not-member span {
+    color: #fff;
+}
+
+.not-member a {
+    color: #00ffff;
+    text-decoration: underline;
+}
+
+.back {
+    color: #00ffff;
+}

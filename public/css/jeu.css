@@ -1,0 +1,405 @@
+@font-face {
+    font-family: "Batman";
+    src: url("../fonts/Batman.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Blender Pro Book";
+    src: url("../fonts/BlenderProBook.ttf") format("truetype");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-image: url(../images/jeu/tech.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    font-family: 'Blender Pro Book', sans-serif;
+}
+
+.container {
+    height:98vh;
+    margin: 10px;
+    border: solid 5px #00ffff;
+}
+
+.d-none {
+    display: none;
+}
+
+.chat-roll {
+    position: absolute;
+    top: 430px;
+}
+
+/* Head */
+
+.head {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 30px 0 30px;
+}
+
+.back {
+    width: 30%;
+}
+
+.back a {
+    text-decoration: none;
+    color: #00ffff;
+}
+
+.player {
+    display: flex;
+}
+
+.player h1 {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 10px;
+    font-size: 20px;
+    text-transform: uppercase;
+    color: #052222;
+    background-color: #00ffff;
+}
+
+.wrap-l, 
+.wrap-r {
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.wrap-l {
+    border-width: 0 0 30px 30px;
+    border-color: transparent transparent #00ffff transparent;
+}
+
+.wrap-r {
+    border-width: 30px 30px 0 0;
+    border-color: #00ffff transparent transparent transparent;
+}
+
+.buttons {
+    display: flex;
+    justify-content: right;
+    width: 30%;
+}
+
+.buttons div {
+    border: solid 2px #00ffff;
+    width: 40px;
+    height: 40px;
+    border-radius: 100px;
+    margin-left: 10px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.buttons div img {
+    width: 100%;
+    height: auto;
+}
+
+/* Actions */
+
+#actions {
+    color: #00ffff;
+    margin-left: 30px;
+}
+
+/* Partie */
+
+#partie {
+    width: 1320px;
+    margin: auto;
+}
+
+#plateau,
+#joueur,
+#adversaire {
+    display: flex;
+    width: 90%;
+    margin: 0 auto;
+}
+
+#joueur,
+#adversaire {
+    min-height: calc(140px + 140px);
+}
+
+#adversaire {
+    transform: rotate(180deg);
+}
+
+.pile {
+    margin:5px;
+    width: 110px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.pile .contour-carte{
+    width: 100px;
+    height: 140px;
+    position: absolute;
+    margin: 5px; border: 2px cyan solid ;
+    border-radius: 5px 5px ;
+    box-sizing: border-box
+}
+
+#plateau img {
+    width: 100%;
+    height: 150px;
+}
+
+#adversaire img,
+#joueur img {
+    width: 100px;
+    height: 140px;
+    position: absolute;
+    margin: 5px;
+}
+
+#joueur img {
+    transition: 0.3s;
+}
+
+#joueur img:hover {
+    transform: scale(1.1);
+}
+
+#adversaire img:hover {
+    transform: rotate(180deg);
+    z-index: 10;
+}
+
+#adversaire .carte.position-2,
+#joueur .carte.position-2 {
+    top: 35px;
+}
+
+#adversaire .carte.position-3,
+#joueur .carte.position-3 {
+    top: 70px;
+}
+
+#adversaire .carte.position-4,
+#joueur .carte.position-4 {
+    top: 105px;
+}
+
+#adversaire .carte.position-5,
+#joueur .carte.position-5 {
+    top: 140px;
+}
+
+#adversaire .carte.position-6,
+#joueur .carte.position-6 {
+    top: 175px;
+}
+
+#adversaire .carte.position-7,
+#joueur .carte.position-7 {
+    top: 210px;
+}
+
+#adversaire .carte.position-8,
+#joueur .carte.position-8 {
+    top: 245px;
+}
+
+#adversaire .carte.position-9,
+#joueur .carte.position-9 {
+    top: 280px;
+}
+
+#adversaire .carte.position-10,
+#joueur .carte.position-10 {
+    top: 315px;
+}
+
+/* Bottom */
+
+#bottom {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px 20px 30px;
+}
+
+/* Chat */
+
+#chat {
+    width: 300px;
+    background-color: #111;
+}
+
+.chat-head {
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.chat-head > div {
+    border: solid 1px #00ffff;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 10px 10px 0 10px;
+    padding: 10px 20px;
+}
+
+.chat-head .img-container {
+    border: solid 2px #00ffff;
+    width: 40px;
+    height: 40px;
+    border-radius: 100px;
+    padding: 5px;
+}
+
+.chat-head img {
+    width: 100%;
+    height: auto;
+}
+
+.chat-head h2 {
+    color: #00ffff;
+    margin-left: 20px;
+}
+
+.chat-body > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    border-left: solid 1px #00ffff;
+    border-right: solid 1px #00ffff;
+    border-bottom: solid 1px #00ffff;
+    height: 400px;
+    margin: 0 10px 10px 10px;
+    padding: 20px;
+}
+
+.chat-body p.text-right {
+    color: #00ffff;
+    text-align: right;
+}
+
+.chat-body p.text-left {
+    color: #fff;
+    text-align: left;
+}
+
+.input {
+    display: flex;
+    margin-top: 20px;
+}
+
+.chat-body input {
+    background-color: transparent;
+    border: solid 1px #00ffff;
+    color: #00ffff;
+    padding: 5px;
+    font-family: 'Blender Pro Book', sans-serif;
+    font-size: inherit;
+}
+
+.chat-body input[type="submit"] {
+    cursor: pointer;
+    border-left: none;
+}
+
+.chat-body input[type="submit"]:hover {
+    background-color: #00ffff;
+    color: #111;
+}
+
+/* Dés */
+
+#des {
+    display: flex;
+    align-items: center;
+    margin-top: 40px;
+}
+
+#de1,
+#de2,
+#de3 {
+    background-color: transparent;
+    width: 40px;
+    height: 40px;
+    border: solid 1px;
+    margin-left: 10px;
+    font-family: 'Batman', sans-serif;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+#fintour {
+    border: none;
+    background-color: #00ffff;
+    height: 40px;
+    margin-left: 10px;
+    padding: 0 10px;
+    font-family: 'Blender Pro Book', sans-serif;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#de1 {
+    color: #00ff00;
+    border-color: #00ff00;
+}
+
+#de2 {
+    color: #00ffff;
+    border-color: #00ffff;
+}
+
+#de3 {
+    color: #ff00ff;
+    border-color: #ff00ff;
+}
+
+.doNotPlay:hover {
+    cursor: not-allowed;
+}
+
+#des .toPlay:hover {
+    cursor: pointer;
+}
+
+.toPlay:hover {
+    cursor: pointer;
+}
+
+
+#anim {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    background: black;
+}
+
+#anim img {
+    display: none;
+    height: 100%;
+}
+
+#loader {
+    display: none;
+    z-index: 30;
+    width: 100%;
+    height: 100%;
+}

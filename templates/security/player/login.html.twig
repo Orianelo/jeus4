@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}CyberNative - Connexion{% endblock %}
+{% block css %}
+    <link href="{{ "css/style.css" }}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+    <div class="log">
+        {% if error %}
+            <p>{{ error.messageKey | trans(error.messagedata, 'security') }}</p>
+        {% endif %}
+        <img src="{{ asset('images/site/cybernative-logo.svg') }}" alt="Logo Cybernative">
+        <form action="{{ path('login') }}" method="post">
+            <input required  type="text" id="username" name="_username" value="{{ last_username }}" placeholder="Login">
+            <input type="hidden" name="_target_path" value="{{ path('player.index') }}" />
+            <input required type="password" id="password" name="_password" placeholder="Mot de passe">
+            <input type="submit" value="Se connecter">
+        </form>
+        <div class="not-member">
+            <span>Pas encore membre ?</span>
+            <a href="{{ path('player.register') }}">Inscrivez-vous maintenant !</a>
+        </div>
+        <a class="back" href="{{ path('home') }}">&#8636; Retour à la page d'accueil</a>
+    </div>
+
+{% endblock %}

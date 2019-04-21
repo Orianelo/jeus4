@@ -1,0 +1,7 @@
+{% for message in messages %}
+    {% if (message.joueur == 1 and  player.id == partie.j1.id) or (message.joueur ==2 and player.id == partie.j2.id) %}
+        <p class="text-right">{{ message.message }}</p>
+    {% else %}
+        <p class="text-left">{{ message.message }}</p>
+    {% endif %}
+{% endfor %}

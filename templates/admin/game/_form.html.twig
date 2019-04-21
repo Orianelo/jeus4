@@ -1,0 +1,36 @@
+<div class="box box-primary">
+    <div class="box-body">
+        {{ form_start(form) }}
+        <div class="row">
+            <div class="form-group col-xs-6">
+                {{ form_row(form.j1) }}
+            </div>
+            <div class="form-group col-xs-6">
+                {{ form_row(form.j2) }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-8">
+                <div class="form-group">
+                    {{ form_row(form.tour_joueur) }}
+                </div>
+            </div>
+            <div class="col-xs-2">
+                <div class="form-group">
+                    <div class="input-group date">
+                        {{ form_row(form.tour) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-2">
+                <div class="form-group">
+                        {{ form_row(form.etat) }}
+                </div>
+            </div>
+        </div>
+        <button class="btn bg-gray btn-flat btn-sm pull-right">{{ button_label|default('Enregistrer') }}</button>
+        {{ form_end(form) }}
+    </div>
+</div>
+
+

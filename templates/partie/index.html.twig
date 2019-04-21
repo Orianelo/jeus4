@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rejoindre une partie{% endblock %}
+
+{% block body %}
+
+    <nav>
+        <ul><li><a href="{{ path('player.profil') }}">Profil</a></li></ul>
+        <ul><li><a href="{{ path('partie.index') }}">Jouer</a></li></ul>
+    </nav>
+    <h1>Parties en cours</h1>
+        <table>
+            <thead>
+                <tr><th>Numéro de partie</th><th>Adversaire</th><th>Numéro de tour</th><th></th></tr>
+            </thead>
+            <tbody>
+            {% for partie in partiesEnCours1 %}
+                <tr><td>{{ partie.id }}</td><td>{{ partie.j2.username }}</td><td>{{ partie.tour }}</td><td>{% if partie.tourJoueur == 1 %}<a href="{{ path("partie.affiche.jeu", {
+            'partie' : partie.id}) }}">Jouer</a>{% else %}<button>Envoyer un rappel</button>{% endif %}</td></tr>
+            {% endfor %}
+            {% for partie in partiesEnCours2 %}
+                <tr><td>{{ partie.id }}</td><td>{% if partie.j1 %}{{ partie.j1.username }}{% else %}En attente d'adversaire{% endif %}</td><td>{{ partie.tour }}</td><td>{% if partie.j1 %}{% if partie.tourJoueur == 2 %}<a href="{{ path('partie.affiche.jeu', {'partie': partie.id}) }}">Jouer</a>{% else %}<a href="{{ path('partie.affiche.jeu', {'partie': partie.id}) }}">Voir partie</a>{% endif %}{% else %}En attente{% endif %}</td></tr>
+            {% endfor %}
+            {% if not partiesEnCours1 and not partiesEnCours2%}
+                <tr><td>Aucune partie en cours</td></tr>
+            {% endif %}
+            </tbody>
+        </table>
+    <h1>Rejoindre une partie </h1>
+    {{ include('partie/_nouvelle-table.html.twig') }}
+        <table>
+            <thead>
+            <tr><th>Numéro de partie</th><th>Adversaire</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for partie in rejoindreTable %}
+                <tr><td>{{ partie.id }}</td><td>{{ partie.j2.username }}</td><td>{{ include('partie/_rejoindre-table.html.twig') }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <h1>Créer partie selon joueurs co</h1>
+    <form method="post" action="{{ path('jouer.distribuer') }}">
+        <select name="adversaire" style="padding: 5px">
+            <option value=""  style="padding: 5px">Choisir Joueur</option>
+            {% for adv in joueursCo %}
+                <option value="{{ adv.id }}"  style="padding: 5px">{{ adv.username }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="_token" value="{{ csrf_token('joueurCo' ~ player.id) }}">
+        <button class="btn btn-danger btn-flat btn-sm">Lancer la Partie</button>
+    </form>
+    <h1>Créer partie selon amis</h1>
+    <form method="post" action="{{ path('jouer.distribuer') }}">
+        <select name="adversaire"  style="padding: 5px">
+            <option value=""  style="padding: 5px">Choisir Joueur</option>
+            {% for adv in player.friend %}
+                <option value="{{ adv.id }}">{{ adv.username }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="_token" value="{{ csrf_token('ami' ~ player.id) }}">
+        <button class="btn btn-danger btn-flat btn-sm">Lancer la partie</button>
+    </form>
+
+{% endblock %}

@@ -1,0 +1,612 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello PlayerController!{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{{ asset('css/jeu.css') }}">
+    <script src="{{ asset('js/jquery.js') }}"></script>
+{% endblock %}
+
+{% block body %}
+    {% if partie.typeVictoire %}
+        <div>{% if (partie.gagnant==1 and player.id == partie.j1.id) or (partie.gagnant==2 and player.id == partie.j2.id) %}Victoire{% else %}Défaite{% endif %}</div>
+    {% endif %}
+    <div id="anim">
+        <img id="vic" src="{{ asset('vid/vic.gif') }}">
+        <img id="def" src="{{ asset('vid/def.gif') }}">
+        <img id="vs" src="{{ asset('vid/bonvs.gif') }}">
+        <img id="lanceDes" src="{{ asset('vid/lance_des.gif') }}">
+    </div>
+    <div class="container">
+        <div class="head">
+            <div class="back">
+                <a href="{{ path('player.index') }}">&#60; Retour</a>
+            </div>
+            <div class="player">
+                <div class="wrap-l"></div>
+                <h1>{{ player.username }}</h1>
+                <div class="wrap-r"></div>
+            </div>
+        </div>
+
+        <div id="actions">
+
+        </div>
+
+        <div id="partie">
+            {{ render(controller("App\\Controller\\PartieController::plateau", {partie : partie.id})) }}
+        </div>
+
+        <div id="bottom">
+            <div id="chat">
+                <div class="chat-head">
+                    <div>
+                        <div class="img-container"><img src="{{ asset('images/jeu/skull.svg') }}" alt=""></div>
+                        <h2>{{ player.username }}</h2>
+                    </div>
+                </div>
+                <div class="chat-body d-none">
+                    <div id="messageEnvoye">
+                        <div id="allMessages">
+                            {{ render(controller("App\\Controller\\PartieController::tchat", {partie : partie.id})) }}
+                        </div>
+                        <div class="input" id="formulaire">
+                            <input type="text" placeholder="Message..." id="messageChat">
+                            <input type="submit" value="Envoyer" id="envoyer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="des" class="col-sm-12">
+                <button id="de1" class="de blue btn-block"
+                        {% if partie.de.de1[1] or (not((partie.tourJoueur == 1 and player.id==partie.j1.id) or (partie.tourJoueur == 2 and player.id==partie.j2.id))) %}
+                            style="background:grey;"
+                        {% endif %}
+                        data-couleur="vit">{% if partie.de.de1 %}{{ partie.de.de1[0] }}{% else %}...{% endif %}</button>
+                <button id="de2" class="de red btn-block"
+                        {% if partie.de.de2[1] or (not((partie.tourJoueur == 1 and player.id==partie.j1.id) or (partie.tourJoueur == 2 and player.id==partie.j2.id))) %}
+                            style="background:grey;"
+                        {% endif %}
+                        data-couleur="def">{% if partie.de.de2 %}{{ partie.de.de2[0] }}{% else %}...{% endif %}</button>
+                <button id="de3" class="de green btn-block"
+                        {% if partie.de.de3[1] or (not((partie.tourJoueur == 1 and player.id==partie.j1.id) or (partie.tourJoueur == 2 and player.id==partie.j2.id))) %}
+                            style="background:grey;"
+                        {% endif %}
+                        data-couleur="att">{% if partie.de.de3 %}{{ partie.de.de3[0] }}{% else %}...{% endif %}</button>
+                {% if (partie.tourJoueur == 1 and player.id==partie.j1.id) or (partie.tourJoueur == 2 and player.id==partie.j2.id) %}
+                    {% if partie.de.de1[1] or partie.de.de2[1] or partie.de.de3[1] %}
+                        <button type="submit" id="fintour">Fin du tour</button>
+                    {% else %}
+                        <button type="submit" id="fintour" style="display: none">Fin du tour</button>
+                    {% endif %}
+                {% else %}
+                    <button type="submit" id="fintour" style="display: none">Fin du tour</button>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+{% block javascripts %}
+    <script>
+        // ---------------------------Deplacement des cartes ----------------------------------
+        {% if not partie.typeVictoire %}
+        {% if (partie.tourJoueur == 1 and player.id==partie.j1.id) or (partie.tourJoueur == 2 and player.id==partie.j2.id) %}
+        $(document).on('click', '.deplacement', function () {
+            var power = $(this).data('power');
+            //Partie pour la vitesse
+            if (power == 'vit') {
+                {% if partie.de.de1[1] %}
+                $('#actions').empty().append('<strong style="color:red">Le dé vert a déjà été joué</strong>');
+                {% else %}
+                if ($(this).data('pile') + {{ partie.de.de1[0] }} > 11) {
+                    $('#actions').empty().append('<strong color="red">Déplacement interdit, les cartes sortiraient du plateau</strong>');
+                } else if ($(this).data('nb-cartes') - $(this).data('position') > 2) {
+                    $('#actions').empty().append('<strong>Déplacement interdit. 3 cartes maximum.</strong>');
+                } else {
+                    $.ajax({
+                        url: "{{ path('jouer.deplacement.cartes', {partie:partie.id}) }}",
+                        method: 'POST',
+                        data: {
+                            id: $(this).data('id'),
+                            pile: $(this).data('pile'),
+                            power: power,
+                            position: $(this).data('position'),
+                            de: $('#de1').text(),
+                            couleurDe: 'de1',
+                        },
+                        success: function (data) {
+                            aumoinsunde = true;
+                            $('#fintour').show();
+                            $('#partie').empty().load("{{ path('jouer.refresh.terrain', {partie:partie.id}) }}");
+                            if (data.etat == 'ok') {
+                                $('#actions').empty().append('<strong style="color:green">Déplacement effectué.</strong>');
+                                $("#de1").css("background-color", "grey");
+                                verifFinPartie();
+                            } else if (data.etat == 'tropCartes') {
+                                $('#actions').empty().append('<strong style="color:red">Impossible de déplacer la carte, il y en a trop au dessus d\'elle</strong>');
+                            } else if (data.etat == 'finTour') {
+                                $('#actions').empty().append('<strong style="color:green">Vos actions ont toutes été effectuées. Fin de votre tour.</strong>');
+                                location.reload();
+                            } else if (data.etat == 'deJoue') {
+                                $('#actions').empty().append('<strong style="color:red">Dé déjà joué</strong>');
+                            } else if (data.etat == 'combat') {
+                                $('#actions').empty().append('<strong style="color:maroon">Combat en cours</strong>');
+                                $("#de1").backgroundColor = "grey";
+                                $('#anim').show();
+                                $('#vs').fadeIn();
+                                setTimeout(function () {
+                                    $('#anim').hide();
+                                    $('#vs').fadeOut();
+                                }, 2700)
+                                combat(data.pile);
+                            } else {
+                                $('#actions').empty().append('<strong style="color:red">Impossible de jouer ce coup.</strong>');
+                            }
+                        }
+                    })
+                }
+
+                {% endif %}
+            }
+
+            //Partie pour l'attaque
+            else if (power == 'att') {
+                {% if partie.de.de3[1] %}
+                $('#actions').empty().append('<strong style="color:green">Le dé e déjà été joué</strong>');
+                {% else %}
+                if ($(this).data('pile') + {{ partie.de.de3[0] }} > 11) {
+                    $('#actions').empty().append('<strong color="red">Déplacement interdit, les cartes sortiraient du plateau</strong>');
+                } else if ($(this).data('nb-cartes') - $(this).data('position') > 2) {
+                    $('#actions').empty().append('<strong>Déplacement interdit. 3 cartes maximum.</strong>');
+                } else {
+                    $.ajax({
+                        url: "{{ path('jouer.deplacement.cartes', {partie:partie.id}) }}",
+                        method: 'POST',
+                        data: {
+                            id: $(this).data('id'),
+                            pile: $(this).data('pile'),
+                            power: power,
+                            position: $(this).data('position'),
+                            de: $('#de3').text(),
+                            couleurDe: 'de3',
+                        },
+                        success: function (data) {
+                            aumoinsunde = true;
+                            $('#partie').empty().load("{{ path('jouer.refresh.terrain', {partie:partie.id}) }}");
+                            if (data.etat == 'ok') {
+                                $('#fintour').show();
+                                $('#actions').empty().append('<strong style="color:green">Déplacement effectué.</strong>');
+                                $("#de3").css("background-color", "grey");
+                                verifFinPartie();
+                            } else if (data.etat == 'tropCartes') {
+                                $('#actions').empty().append('<strong style="color:red">Impossible de déplacer la carte, il y en a trop au dessus d\'elle</strong>');
+                            } else if (data.etat == 'finTour') {
+                                $('#actions').empty().append('<strong style="color:green">Vos actions ont toutes été effectuées. Fin de votre tour.</strong>');
+                                location.reload();
+                            } else if (data.etat == 'deJoue') {
+                                $('#actions').empty().append('<strong style="color:red">Dé déjà joué</strong>');
+                            } else if (data.etat == 'deplaceShogun') {
+                                $('#actions').empty().append('<strong style="color:red">Le shogun a dejà été déplacé</strong>');
+                            } else if (data.etat == 'combat') {
+                                $('#actions').empty().append('<strong style="color:maroon">Combat en cours</strong>');
+                                $("#de3").backgroundColor = "grey";
+                                $('#fintour').show();
+                                $('#anim').show();
+                                $('#vs').fadeIn();
+                                setTimeout(function () {
+                                    $('#anim').hide();
+                                    $('#vs').fadeOut();
+                                }, 2700)
+                                combat(data.pile);
+                            } else {
+                                $('#actions').empty().append('<strong style="color:red">Impossible de jouer ce coup.</strong>');
+                            }
+                        }
+                    })
+                }
+
+                {% endif %}
+            }
+            //partie pour la defense
+            else if (power == 'def') {
+                {% if partie.de.de2[1] %}
+                $('#actions').empty().append('<strong style="color:green">Le dé e déjà été joué</strong>');
+                {% else %}
+                if ($(this).data('pile') + {{ partie.de.de2[0] }} > 11) {
+                    $('#actions').empty().append('<strong color="red">Déplacement interdit, les cartes sortiraient du plateau</strong>');
+                } else if ($(this).data('nb-cartes') - $(this).data('position') > 2) {
+                    $('#actions').empty().append('<strong>Déplacement interdit. 3 cartes maximum.</strong>');
+                } else {
+                    $.ajax({
+                        url: "{{ path('jouer.deplacement.cartes', {partie:partie.id}) }}",
+                        method: 'POST',
+                        data: {
+                            id: $(this).data('id'),
+                            pile: $(this).data('pile'),
+                            power: power,
+                            position: $(this).data('position'),
+                            de: $('#de2').text(),
+                            couleurDe: 'de2',
+                        },
+                        success: function (data) {
+                            aumoinsunde = true;
+                            $('#fintour').show();
+                            $('#partie').empty().load("{{ path('jouer.refresh.terrain', {partie:partie.id}) }}");
+                            if (data.etat == 'ok') {
+                                $('#actions').empty().append('<strong style="color:green">Déplacement effectué.</strong>');
+                                $("#de2").css("background-color", "grey");
+                                verifFinPartie();
+                            } else if (data.etat == 'finTour') {
+                                $('#actions').empty().append('<strong style="color:green">Vos actions ont toutes été effectuées. Fin de votre tour.</strong>');
+                                location.reload();
+                            } else if (data.etat == 'tropCartes') {
+                                $('#actions').empty().append('<strong style="color:red">Impossible de déplacer la carte, il y en a trop au dessus d\'elle</strong>');
+                            } else if (data.etat == 'deJoue') {
+                                $('#actions').empty().append('<strong style="color:red">Dé déjà joué</strong>');
+                            } else if (data.etat == 'combat') {
+                                $('#actions').empty().append('<strong style="color:maroon">Combat en cours</strong>');
+                                $("#de2").backgroundColor = "grey";
+                                $('#anim').show();
+                                $('#vs').fadeIn();
+                                setTimeout(function () {
+                                    $('#anim').hide();
+                                    $('#vs').fadeOut();
+                                }, 2700)
+                                combat(data.pile);
+                            } else {
+                                $('#actions').empty().append('<strong style="color:red">Impossible de jouer ce coup.</strong>');
+                            }
+                        }
+                    })
+                }
+
+                {% endif %}
+            }
+            //Partie pour le boss
+            else if (power == 'tout') {
+                //Vérifie que le boss n'ai pas été joué
+                {% if partie.de.de1[2] or partie.de.de2[2] or partie.de.de3[2] %}
+                $('#actions').empty().append('<strong style="color:red">Le boss a déjà été joué</strong>');
+                {% else %}
+                if ($(this).data('nb-cartes') - $(this).data('position') > 2) {
+                    $('#actions').empty().append('<strong>Déplacement interdit. 3 cartes maximum.</strong>');
+                } else {
+                    $('#actions').empty().append('<strong style="color:orange">Selectionnez le dé à jouer pour votre boss</strong>');
+                    //En focntion du dé choisi, le boss pourra être déplacé si il n'a pas été joué
+                    $('#de1').on('click', function () {
+                        {% if partie.de.de1[1] %}
+                        $('#actions').empty().append('<strong style="color:red">Le dé vert a déjà été joué.</strong>');
+                        {% else %}
+                        if ($(this).data('pile') + {{ partie.de.de1[0] }} > 11) {
+                            $('#actions').empty().append('<strong color="red">Déplacement interdit, les cartes sortiraient du plateau</strong>');
+                        } else if ($('#tout4').data('nb-cartes') - $('#tout4').data('position') > 2) {
+                            $('#actions').empty().append('<strong>Déplacement interdit. 3 cartes maximum.</strong>');
+                        } else {
+                            $.ajax({
+                                url: "{{ path('jouer.deplacement.cartes', {partie:partie.id}) }}",
+                                method: 'POST',
+                                data: {
+                                    id: $('#tout4').data('id'),
+                                    pile: $('#tout4').data('pile'),
+                                    power: power,
+                                    position: $('#tout4').data('position'),
+                                    de: $('#de1').text(),
+                                    couleurDe: 'de1',
+                                },
+                                success: function (data) {
+                                    aumoinsunde = true;
+                                    $('#fintour').show();
+                                    $('#partie').empty().load("{{ path('jouer.refresh.terrain', {partie:partie.id}) }}");
+                                    if (data.etat == 'ok') {
+                                        $('#actions').empty().append('<strong style="color:green">Déplacement effectué.</strong>');
+                                        $("#de1").css("background-color", "grey");
+                                        verifFinPartie();
+                                    } else if (data.etat == 'finTour') {
+                                        $('#actions').empty().append('<strong style="color:green">Vos actions ont toutes été effectuées. Fin de votre tour.</strong>');
+                                        location.reload();
+                                    } else if (data.etat == 'tropCartes') {
+                                        $('#actions').empty().append('<strong style="color:red">Impossible de déplacer la carte, il y en a trop au dessus d\'elle</strong>');
+                                    } else if (data.etat == 'deJoue') {
+                                        $('#actions').empty().append('<strong style="color:red">Dé déjà joué</strong>');
+                                    } else if (data.etat == 'combat') {
+                                        $('#actions').empty().append('<strong style="color:maroon">Combat en cours</strong>');
+                                        $("#de1").backgroundColor = "grey";
+                                        $('#anim').show();
+                                        $('#vs').fadeIn();
+                                        setTimeout(function () {
+                                            $('#anim').hide();
+                                            $('#vs').fadeOut();
+                                        }, 2700)
+                                        combat(data.pile);
+                                    } else {
+                                        $('#actions').empty().append('<strong style="color:red">Impossible de jouer ce coup.</strong>');
+                                    }
+                                }
+                            })
+                        }
+                        {% endif %}
+                    });
+                    $('#de2').on('click', function () {
+                        {% if partie.de.de2[1] %}
+                        $('#actions').empty().append('<strong style="color:red">Le dé bleu a déjà été joué.</strong>');
+                        {% else %}
+                        if ($(this).data('pile') + {{ partie.de.de2[0] }} > 11) {
+                            $('#actions').empty().append('<strong color="red">Déplacement interdit, les cartes sortiraient du plateau</strong>');
+                        } else if ($('#tout4').data('nb-cartes') - $('#tout4').data('position') > 2) {
+                            $('#actions').empty().append('<strong style="color:red">Déplacement interdit. 3 cartes maximum.</strong>');
+                        } else {
+                            $.ajax({
+                                url: "{{ path('jouer.deplacement.cartes', {partie:partie.id}) }}",
+                                method: 'POST',
+                                data: {
+                                    id: $('#tout4').data('id'),
+                                    pile: $('#tout4').data('pile'),
+                                    power: power,
+                                    position: $('#tout4').data('position'),
+                                    de: $('#de2').text(),
+                                    couleurDe: 'de2',
+                                },
+                                success: function (data) {
+                                    aumoinsunde = true;
+                                    $('#fintour').show();
+                                    $('#partie').empty().load("{{ path('jouer.refresh.terrain', {partie:partie.id}) }}");
+                                    if (data.etat == 'ok') {
+                                        $('#actions').empty().append('<strong style="color:green">Déplacement effectué.</strong>');
+                                        $("#de2").css("background-color", "grey");
+                                        verifFinPartie();
+                                    } else if (data.etat == 'tropCartes') {
+                                        $('#actions').empty().append('<strong style="color:red">Impossible de déplacer la carte, il y en a trop au dessus d\'elle</strong>');
+                                    } else if (data.etat == 'finTour') {
+                                        $('#actions').empty().append('<strong style="color:green">Vos actions ont toutes été effectuées. Fin de votre tour.</strong>');
+                                        location.reload();
+                                    } else if (data.etat == 'deJoue') {
+                                        $('#actions').empty().append('<strong style="color:red">Dé déjà joué</strong>');
+                                    } else if (data.etat == 'combat') {
+                                        $('#actions').empty().append('<strong style="color:maroon">Combat en cours</strong>');
+                                        $("#de2").backgroundColor = "grey";
+                                        $('#anim').show();
+                                        $('#vs').fadeIn();
+                                        setTimeout(function () {
+                                            $('#anim').hide();
+                                            $('#vs').fadeOut();
+                                        }, 2700)
+                                        combat(data.pile);
+                                    } else {
+                                        $('#actions').empty().append('<strong style="color:red">Impossible de jouer ce coup.</strong>');
+                                    }
+                                }
+                            })
+                        }
+                        {% endif %}
+                    });
+                    $('#de3').on('click', function () {
+                        {% if partie.de.de3[1] %}
+                        $('#actions').empty().append('<strong style="color:red">Le dé rose a déjà été joué.</strong>');
+                        {% else %}
+                        if ($(this).data('pile') + {{ partie.de.de3[0] }} > 11) {
+                            $('#actions').empty().append('<strong color="red">Déplacement interdit, les cartes sortiraient du plateau</strong>');
+                        } else if ($('#tout4').data('nb-cartes') - $('#tout4').data('position') > 2) {
+                            $('#actions').empty().append('<strong style="color:red">Déplacement interdit. 3 cartes maximum.</strong>');
+                        } else {
+                            $.ajax({
+                                url: "{{ path('jouer.deplacement.cartes', {partie:partie.id}) }}",
+                                method: 'POST',
+                                data: {
+                                    id: $('#tout4').data('id'),
+                                    pile: $('#tout4').data('pile'),
+                                    power: power,
+                                    position: $('#tout4').data('position'),
+                                    de: $('#de3').text(),
+                                    couleurDe: 'de3',
+                                },
+                                success: function (data) {
+                                    aumoinsunde = true;
+                                    $('#fintour').show();
+                                    $('#partie').empty().load("{{ path('jouer.refresh.terrain', {partie:partie.id}) }}");
+                                    if (data.etat == 'ok') {
+                                        $('#actions').empty().append('<strong style="color:green">Déplacement effectué.</strong>');
+                                        $("#de3").css("background-color", "grey");
+                                        verifFinPartie();
+                                    } else if (data.etat == 'tropCartes') {
+                                        $('#actions').empty().append('<strong style="color:red">Impossible de déplacer la carte, il y en a trop au dessus d\'elle</strong>');
+                                    } else if (data.etat == 'deJoue') {
+                                        $('#actions').empty().append('<strong style="color:red">Dé déjà joué</strong>');
+                                    } else if (data.etat == 'finTour') {
+                                        $('#actions').empty().append('<strong style="color:green">Vos actions ont toutes été effectuées. Fin de votre tour.</strong>');
+                                        location.reload();
+                                    } else if (data.etat == 'combat') {
+                                        $('#actions').empty().append('<strong style="color:maroon">Combat en cours</strong>');
+                                        $("#de3").backgroundColor = "grey";
+                                        $('#anim').show();
+                                        $('#vs').fadeIn();
+                                        setTimeout(function () {
+                                            $('#anim').hide();
+                                            $('#vs').fadeOut();
+                                        }, 2700)
+                                        combat(data.pile);
+                                    } else {
+                                        $('#actions').empty().append('<strong style="color:red">Impossible de jouer ce coup.</strong>');
+                                    }
+                                }
+                            })
+                        }
+                        {% endif %}
+                    });
+                }
+                {% endif %}
+
+            }
+        });
+        {% else %}
+
+        $('#actions').empty().append('<strong style="color:red">Tour de l\'adversaire</strong>');
+        {% endif %}
+        {% else %}
+        $('#actions').empty().append('<div>{% if (partie.gagnant==1 and player.id == partie.j1.id) or (partie.gagnant==2 and player.id == partie.j2.id) %}Victoire{% else %}Défaite{% endif %}</div>');
+        {% endif %}
+
+        function combat(pile) {
+            $.ajax({
+                url: "{{ path('jouer.combat.cartes', {partie:partie.id}) }}",
+                method: 'POST',
+                data: {
+                    pile: pile
+                },
+                success: function (data) {
+                    $('#partie').empty().load("{{ path('jouer.refresh.terrain', {partie:partie.id}) }}");
+                    $('#actions').empty().append('<strong style="color:maroon">Combats Résolus</strong>');
+                    {% if partie.de.de3[1] and partie.de.de2[1] and partie.de.de1[1] %}
+                    location.reload();
+                    {% endif %}
+                    verifFinPartie();
+                }
+            })
+        }
+
+        $('#fintour').on('click', function () {
+            $.ajax({
+                url: "{{ path('jouer.fintour.terrain', {partie:partie.id}) }}",
+                method: 'POST',
+                success: function (data) {
+                    location.reload();
+                }
+            })
+        })
+
+
+        function verifFinPartie() {
+            $.ajax({
+                url: "{{ path('jouer.finpartie.terrain', {partie:partie.id}) }}",
+                method: 'POST',
+                success: function (data) {
+                    if (data.etat == 'jCombat') {
+                        $('#actions').empty().append('<strong style="color:green">Victoire : Tous les personnages adverses ont été éliminés</strong>');
+                        $('#vic').fadeIn();
+                        $('#anim').show();
+                        setTimeout(function () {
+                            $('#vic').fadeOut();
+                            $('#anim').hide();
+                        }, 4000)
+                    } else if (data.etat == 'aCombat') {
+                        $('#actions').empty().append('<strong style="color:maroon">Défaite : Tous vos personnages ont été éliminés</strong>');
+                        $('#anim').show();
+                        $('#def').fadeIn();
+                        setTimeout(function () {
+                            $('#def').fadeOut();
+                            $('#anim').hide();
+                        }, 4000)
+                    } else if (data.etat == 'jPile') {
+                        $('#actions').empty().append('<strong style="color:green">Victoire : Vous avez rejoint le camp adverse</strong>');
+                        $('#anim').show();
+                        $('#vic').fadeIn();
+                        setTimeout(function () {
+                            $('#vic').fadeOut();
+                            $('#anim').hide();
+                        }, 4000)
+                    } else if (data.etat == 'aPile') {
+                        $('#actions').empty().append('<strong style="color:maroon">Défaite : Votre camp a été conquis</strong>');
+                        $('#anim').show();
+                        $('#def').fadeIn();
+                        setTimeout(function () {
+                            $('#def').fadeOut();
+                            $('#anim').hide();
+                        }, 4000)
+
+                    }
+                }
+            })
+        }
+
+
+
+        {% if (partie.de.de1[1]==false and partie.de.de2[1]==false and partie.de.de3[1]==false) and not partie.typeVictoire%}
+        $(document).ready(function () {
+            $('#anim').show();
+            $('#lanceDes').fadeIn();
+            setTimeout(function () {
+                $('#anim').hide();
+                $('#lanceDes').fadeOut();
+            }, 2700)
+        });
+        {% endif %}
+
+
+        //-------------------------------------------Raffraichissement--------------------------------------
+        {% if (player.id == partie.j1.id and partie.tourJoueur== 2) or (player.id == partie.j2.id and partie.tourJoueur==1) %}
+        var etat = {{ partie.etat }};
+        var tour = {{ partie.tourJoueur }};
+        setInterval(function () {
+            $.ajax({
+                url: "{{ path('jouer.refresh.adverse', {partie:partie.id}) }}",
+                method: 'POST',
+                success: function (data) {
+                    console.log(etat + '-' + data.etat);
+                    if (data.victoire == 1 || data.victoire == 2) {
+                        verifFinPartie();
+                    } else if (data.tour != tour) {
+                        location.reload();
+                    } else if (data.etat != etat) {
+                        $('#partie').empty().load("{{ path('jouer.refresh.terrain', {partie:partie.id}) }}");
+                        etat = data.etat;
+                    }
+                    console.log(tour + '-' + data.tour);
+                }
+            })
+
+            $.ajax({
+                url: "{{ path('jouer.refresh.tchat', {partie:partie.id}) }}",
+                method: 'POST',
+                success: function (data) {
+                    $('#messageChat').empty()
+                    $('#allMessages').load("{{ path('jouer.refresh.tchat', {partie:partie.id}) }}");
+
+                }
+            })
+        }, 3000);
+        {% endif %}
+        //-------------------------------------------Chat--------------------------------------
+        $('.chat-head').click(function () {
+            if ($('.chat-body').hasClass('d-none')) {
+                $('.chat-body').removeClass('d-none');
+                $('#chat').addClass('chat-roll');
+            } else {
+                $('.chat-body').addClass('d-none');
+                $('#chat').removeClass('chat-roll');
+            }
+        });
+
+
+        $('#envoyer').click(function () {
+            $.ajax({
+                url: "{{ path('jouer.chat.terrain', {partie:partie.id}) }}",
+                method: 'POST',
+                data: {
+                    message: $('#messageChat').val()
+                },
+                success: function (data) {
+                    $('#allMessages').empty().load("{{ path('jouer.refresh.tchat', {partie:partie.id}) }}");
+                }
+            })
+        })
+        $("#formulaire").keydown(function (e) {
+            if (e.keyCode == 13) {
+                $.ajax({
+                    url: "{{ path('jouer.chat.terrain', {partie:partie.id}) }}",
+                    method: 'POST',
+                    data: {
+                        message: $('#messageChat').val()
+                    },
+                    success: function (data) {
+                        $('#messageChat').empty()
+                        $('#allMessages').load("{{ path('jouer.refresh.tchat', {partie:partie.id}) }}");
+
+                    }
+                })
+            }
+        });
+
+    </script>
+{% endblock %}

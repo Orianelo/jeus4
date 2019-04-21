@@ -1,0 +1,224 @@
+@font-face {
+    font-family: "blender";
+    src: url('../fonts/BlenderProMedium.ttf');
+}
+html,body {
+    overflow-x: hidden;
+    font-family: "blender";
+    margin: 0;
+    background-image: url('../images/site/cyberpunk.png');
+    background-size: cover;
+}
+nav {
+    display: flex;
+    justify-content: flex-end;
+    color: cyan;
+    padding: 30px 30px 30px 0;
+    background-color: rgba(0,0,0,0.5);
+}
+nav a {
+    color: cyan;
+    text-decoration: none;
+}
+
+p{
+    color: white;
+}
+
+#joueur {
+    background-color: rgba(0,0,0,0.5);
+    height: 200px;
+    margin-top: 50px;
+    display: block;
+    width: 450px;
+    color: cyan;
+    padding: 50px;
+    margin: 50px auto 0 auto;
+}
+#joueur div h1 {
+    margin: 0;
+    font-size: 50px;
+    font-weight: 100;
+    line-height: 1;
+    text-align: center;
+}
+#joueur a {
+    color: cyan;
+    text-indent: 5px;
+    text-align: center;
+}
+#joueur img {
+    width: 200px;
+    height: 200px;
+    float: left;
+    margin-right: 30px;
+}
+#ami {
+    background-color: rgba(0,0,0,0.5);
+    width: 70vw;
+    display: block;
+    padding: 30px;
+    margin: auto;
+    margin-top: 50px;
+}
+#ami h1 {
+    margin: 0;
+    color:cyan;
+    font-size: 25px;
+    font-weight: 100;
+    margin-bottom: 30px;
+}
+#ami div {
+    display: flex;
+    justify-content: space-around;
+}
+#ami div a {
+    color: white;
+    text-decoration: none;
+}
+#ami ul, table thead {
+    font-size: 20px;
+    color: cyan;
+    width: 30%;
+}
+#ami li , table tbody tr{
+    margin:10px 0;
+    color: white;
+    font-size: 16px;
+}
+#acref {
+    border: 0;
+    background-color: transparent;
+    background-color: cyan;
+    padding: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+    text-decoration: none;
+}
+#gestion {
+    background-color: rgba(0,0,0,0.5);
+    width: 70vw;
+    display: block;
+    padding: 30px;
+    margin: auto;
+    margin-top: 50px;
+}
+#gestion h1 {
+    margin: 0;
+    color:cyan;
+    font-size: 25px;
+    font-weight: 100;
+    margin-bottom: 30px;
+}
+#gestion div {
+    display: flex;
+    justify-content: space-around;
+}
+#gestion div a {
+    color: white;
+    text-decoration: none;
+}
+#gestion div a:hover {
+    text-decoration: underline;
+}
+#table {
+    background-color: rgba(0,0,0,0.5);
+    width: 70vw;
+    padding: 30px;
+    display: flex;
+    margin: auto;
+    margin-top: 50px;
+    justify-content: space-between;
+}
+#table a {
+    font-size: 25px;
+    font-weight: 100;
+    color: cyan;
+    margin: 0;
+    text-decoration: none;
+}
+#table ul {
+    margin: 0;
+    color: cyan;
+    font-size: 25px;
+    font-weight: 100;
+}
+#table ul li {
+    font-size: 16px;
+    color: white;
+}
+#stats {
+    background-color: rgba(0,0,0,0.5);
+    width: 70vw;
+    display: block;
+    padding: 30px;
+    margin: auto;
+    margin-top: 50px;
+}
+#stats h1 {
+    margin: 0;
+    color:cyan;
+    font-size: 25px;
+    font-weight: 100;
+    margin-bottom: 30px;
+}
+#stats div {
+    display: flex;
+    justify-content: space-around;
+}
+#stats div a {
+    color: cyan;
+    text-decoration: none;
+}
+#stats ul {
+    color: white;
+}
+#stats table {
+    display: block;
+    margin-top: 50px;
+}
+#stats table tr {
+}
+#stats table th {
+    padding-bottom: 15px;
+    width: 10%;
+    font-weight: 100;
+    color: cyan;
+    text-align: center;
+    border-bottom: solid 2px cyan;
+}
+#stats table td {
+    border-bottom: solid 2px cyan;
+    padding-bottom: 15px;
+    width: 10%;
+    font-weight: 100;
+    color: white;
+    text-align: center;
+}
+#join {
+    color: white;
+    font-family: 'blender';
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+    margin: 5px 0;
+}
+#join:hover {
+    color: cyan;
+}
+
+#partiesEnCours{
+    width:100%;
+}
+
+#partiesEnCours tbody tr{
+    margin: 10px;
+}
+
+h2{
+    margin: 15px  0;
+    font-size: 25px;
+    font-weight: 100;
+    line-height: 1;
+    text-align: center;
+}

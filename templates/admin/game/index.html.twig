@@ -1,0 +1,325 @@
+{% extends 'admin.base.html.twig' %}
+
+{% block title %}Admin : index parties{% endblock %}
+{% block titre %}Liste des Parties{% endblock %}
+{% block ariane %}
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+        <li class="active">Parties</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+    <table class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+        <thead>
+        <tr role="row">
+            <th class="sorting_asc text-center" tabindex="0" aria-controls="example1" rowspan="1" colspan="1"
+                aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Joueur 1
+            </th>
+            <th class="sorting_asc text-center" tabindex="0" aria-controls="example1" rowspan="1" colspan="1"
+                aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Joueur 2
+            </th>
+            <th class="sorting_asc text-center" tabindex="0" aria-controls="example1" rowspan="1" colspan="1"
+                aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Nombre de Tours
+            </th>
+            <th class="sorting_asc text-center" tabindex="0" aria-controls="example1" rowspan="1" colspan="1"
+                aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Joueur devant
+                jouer
+            </th>
+            <th class="sorting_asc text-center" tabindex="0" aria-controls="example1" rowspan="1" colspan="1"
+                aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Etat
+            </th>
+            <th class="sorting_asc text-center" tabindex="0" aria-controls="example1" rowspan="1" colspan="1"
+                aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Date de début
+            </th>
+            <th class="sorting_asc text-center" tabindex="0" aria-controls="example1" rowspan="1" colspan="1"
+                aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">Dernière fois
+                jouée
+            </th>
+            <th class="sorting_asc text-center" tabindex="0" aria-controls="example1" rowspan="1" colspan="1"
+                aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending">actions
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for game in games %}
+            <tr role="row">
+                {% if game.j1 %}
+                    <td class="text-center">{% if game.j1.connexion %}<span class="label bg-green">Co</span>{% else %}
+                            <span
+                                    class="label bg-red">Déco</span>{% endif %} - {{ game.j1.username }}</td>
+                    <td class="text-center">{% if game.j2.connexion %}<span class="label bg-green">Co</span>{% else %}<span
+                                class="label bg-red">Déco</span>{% endif %} - {{ game.j2.username }}</td>
+                    <td class="text-center">{{ game.tour }}</td>
+                    <td class="text-center">{% if game.tourJoueur == 1 %}{{ game.j1.username }}{% else %}{{ game.j2.username }}{% endif %}</td>
+                    <td class="text-center">{{ game.etat ? '<p class="text-green">Partie Terminée</p>' : '<p class="text-yellow">Partie En Cours</p>' }}</td>
+                    <td class="text-center">{{ game.dateDebut ? game.dateDebut|date('d / m / Y') : '' }}</td>
+                    <td class="text-center">
+                        {% set difference = game.dateDebut.diff(game.dateEnCours) %}
+                        {% set leftDays = difference.days %}
+                        {% if leftDays == 1 %}
+                            1 jour
+                        {% else %}
+                            {{ leftDays }} jours
+                        {% endif %}
+                    </td>
+                {% else %}
+                    <td class="text-center">En attente de joueur</td>
+                    <td class="text-center">{% if game.j2.connexion %}<span class="label bg-green">Co</span>{% else %}<span
+                                class="label bg-red">Déco</span>{% endif %} - {{ game.j2.username }}</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">{{ game.dateDebut ? game.dateDebut|date('d / m / Y') : '' }}</td>
+                    <td class="text-center">-</td>
+                {% endif %}
+                <td class="text-center">
+                    <a href="{{ path('admin.game.show', {'id': game.id}) }}"
+                       class="btn bg-gray btn-flat btn-sm">Voir</a>
+                    <a href="{{ path('admin.game.edit', {'id': game.id}) }}"
+                       class="btn bg-gray btn-flat btn-sm">Modifier</a>
+                    {{ include('admin/game/_delete_form.html.twig') }}
+                </td>
+
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="13">Pas de parties trouvées</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="row">
+        <div class="col-sm-4">
+
+        </div>
+        <div class="col-sm-4">
+            {{ knp_pagination_render(games) }}
+        </div>
+        <div class="col-sm-4 text-center">
+            <a href="{{ path('admin.game.new') }}" class="pull-right btn bg-navy btn-flat margin">Nouvelle Partie</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Donut chart -->
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-trophy"></i>
+
+                    <h3 class="box-title">Parties finies - {{ finish }}</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div id="donut-chart" style="height: 300px;"></div>
+                </div>
+                <!-- /.box-body-->
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Donut chart -->
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-trophy"></i>
+
+                    <h3 class="box-title">Types de victoire</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div id="donut-chart2" style="height: 300px;"></div>
+                </div>
+                <!-- /.box-body-->
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Donut chart -->
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-trophy"></i>
+
+                    <h3 class="box-title">Dernières parties jouées</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <table class="table table-bordered table-striped dataTable" role="grid"
+                           aria-describedby="example1_info">
+                        <tbody>
+                        {% for game in latestPlayed %}
+                            <tr role="row">
+                                <td><a href="{{ path('admin.game.show', {'id': game.id}) }}"
+                                       class="btn bg-gray btn-flat btn-sm">Partie n°{{ game.id }}</a></td>
+                                <td>Joué il y a {% set difference = game.dateDebut.diff(game.dateEnCours) %}
+                                    {% set leftDays = difference.days %}
+                                    {% if leftDays == 1 %}
+                                        1 jour
+                                    {% else %}
+                                        {{ leftDays }} jours
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+
+                            <tr role="row">
+                                <td>Aucune partie</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body-->
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Donut chart -->
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-trophy"></i>
+
+                    <h3 class="box-title">Parties finies - {{ finish }}</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <table class="table table-bordered table-striped dataTable" role="grid"
+                           aria-describedby="example1_info">
+                        <tbody>
+                        {% for game in latestFinish %}
+                            <tr role="row">
+                                <td><a href="{{ path('admin.game.show', {'id': game.id}) }}"
+                                       class="btn bg-gray btn-flat btn-sm">Partie n°{{ game.id }}</a></td>
+                                <td>Finie le {{ game.dateFin ? game.dateFin|date('d / m / Y') : '' }}
+                                </td>
+                            </tr>
+                        {% else %}
+
+                            <tr role="row">
+                                <td>Aucune partie</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body-->
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            /*
+             * DONUT CHART
+             * -----------
+             */
+
+            var donutData = [
+                {label: '', data: {{ finish }}, color: '#62a05e'},
+                {label: '', data: {{ nonfinish }}, color: '#cb3434'}
+            ];
+            $.plot('#donut-chart', donutData, {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        innerRadius: 0.5,
+                        label: {
+                            show: true,
+                            radius: 2 / 3,
+                            formatter: labelFormatter,
+                            threshold: 0.1
+                        }
+
+                    }
+                },
+                legend: {
+                    show: false
+                }
+            });
+
+            var donutData = [
+                {label: 'Ennemis tués', data: {{ victory.ninja }}, color: '#50a09d'},
+                {label: 'Clan atteint', data: {{ victory.maison }}, color: '#5380a0'},
+                {label: 'Abandon', data: {{ victory.abandon }}, color: '#54a072'}
+            ];
+            $.plot('#donut-chart2', donutData, {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        innerRadius: 0.5,
+                        label: {
+                            show: true,
+                            radius: 2 / 3,
+                            formatter: labelFormatter,
+                            threshold: 0.1
+                        }
+
+                    }
+                },
+                legend: {
+                    show: false
+                }
+            })
+            /*
+             * END DONUT CHART
+             */
+
+        })
+
+        /* END BAR CHART */
+        function labelFormatter(label, series) {
+            return '<div style="font-size:13px; text-align:center; padding:2px; color: #fff; font-weight: 600;">'
+                + label
+                + '<br>'
+                + Math.round(series.percent) + '%</div>'
+        }
+    </script>
+    <!-- ChartJS -->
+    <script src="{{ asset('bower_components/chart.js/Chart.js') }}"></script>
+    <!-- FastClick -->
+    <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="{{ asset('dist/js/demo.js') }}"></script>
+
+    <!-- FLOT CHARTS -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.js') }}"></script>
+    <!-- FLOT RESIZE PLUGIN - allows the chart to redraw when the window is resized -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.resize.js') }}"></script>
+    <!-- FLOT PIE PLUGIN - also used to draw donut charts -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.pie.js') }}"></script>
+    <!-- FLOT CATEGORIES PLUGIN - Used to draw bar charts -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.categories.js') }}"></script>
+{% endblock %}
+

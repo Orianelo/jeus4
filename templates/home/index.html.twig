@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% block title %}Cybernative - Accueil{% endblock %}
+{% block css %}
+    <link href="{{ "css/style.css" }}" rel="stylesheet">
+{% endblock %}
+{% block body %}
+<img class="logo" src="{{ asset('images/site/cybernative-logo.svg') }}" alt="Logo Cybernative">
+<a class="gestion" href="{{ path('admin.login') }}">Gestion</a>
+<div class="main-block">
+    <div class="synopsis">
+        <h2>Synopsis</h2>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia quaerat magnam blanditiis, aperiam
+            consectetur voluptate laborum ratione nemo sequi atque voluptatum ipsa numquam nesciunt maxime quas
+            vitae
+            eveniet quae sunt. Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia quaerat magnam
+            blanditiis, aperiam
+            consectetur voluptate laborum ratione nemo sequi atque voluptatum ipsa numquam nesciunt maxime quas
+            vitae
+            eveniet quae sunt!</p>
+    </div>
+    <div class="rules">
+        <video src="{{ asset('vid/trailer.mp4') }}" autoplay="true" loop>Mettez à jour votre navigateur pour visionnez la vidéo
+            !</video>
+    </div>
+</div>
+<div class="buttons">
+    <a href="{{ path('player.register') }}">S'inscrire</a>
+    <a href="{{ path('login') }}">Se connecter</a>
+</div>
+{% endblock %}

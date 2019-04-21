@@ -1,0 +1,30 @@
+<div id="adversaire">
+    {% for i in 1..11 %}
+        <div class="pile">
+            {% for carte in terrainAdversaire[i] %}
+                <img class="adversaire carte position-{{ loop.index }}" src="{{ asset(tCartes[carte].image) }}">
+                    {% else %}
+                            <div class="contour-carte"></div>
+
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+
+<div id="plateau">
+        <img src="{{ asset('images/jeu/plateau.png') }}" alt="">
+</div>
+
+<div id="joueur">
+    {% for i in 1..11 %}
+        <div class="pile">
+            {% for carte in terrainJoueur[i] %}
+                <img data-pile="{{ i }}" data-id="{{ carte }}" data-strong="{{ tCartes[carte].strong }}" data-power="{{ tCartes[carte].power }}"
+                     data-position="{{ loop.index }}" data-nb-cartes="{{ terrainJoueur[i]|length }}" src="{{ asset(tCartes[carte].image) }}"
+                     class="deplacement {{ tCartes[carte].power }} position-{{ loop.index }} capacite-{{ tCartes[carte].power }} carte" id="{{ tCartes[carte].power }}{{ tCartes[carte].strong }}">
+                    {% else %}
+                    <div class="contour-carte"></div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>

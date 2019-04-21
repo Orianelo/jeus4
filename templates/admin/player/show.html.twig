@@ -1,0 +1,245 @@
+{% extends 'admin.base.html.twig' %}
+
+{% block title %}Admin {{ player.username }}{% endblock %}
+{% block titre %}{% endblock %}
+{% block ariane %}
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-home"></i>Home</a></li>
+        <li><a href="{{ path('admin.player.index') }}"><i class="fa fa-user"></i>Joueurs</a></li>
+        <li class="active">{{ player.username }}</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+    <h1>{{ player.username }}<span> - {{ player.email }}</span></h1>
+    <div>
+        <h5>{% if player.connexion %}<span class="label bg-green">Connecté</span>{% else %}<span class="label bg-red">Déconnecté</span> Dernière connexion : {{ player.dateCo ? player.dateCo|date('d / m / Y') : '' }}{% endif %}
+        </h5>
+    </div>
+    <div>
+        <p>Inscrit depuis {{ player.dateInscription ? player.dateInscription|date('d / m / Y') : '' }}</p>
+    </div>
+    <div class="row text-center margin">
+        <div class="row pull-right ">
+            <div class="col-xs-4">
+                {% if player.blocage %}
+                    {{ include('admin/player/_form_block.html.twig', {id: player.id, button: 'Débloquer', classButton :'success', message : 'débloquer'}) }}
+                {% else %}
+                    {{ include('admin/player/_form_block.html.twig', {id: player.id, button: 'Bloquer', classButton :'warning', message: 'bloquer'}) }}
+                {% endif %}
+            </div>
+            <div class="col-xs-4">
+                <a href="{{ path('admin.player.edit', {'id': player.id}) }}" class="btn bg-gray btn-flat">Modifier</a>
+            </div>
+            <div class="col-xs-4">
+                {{ include('admin/player/_delete_form.html.twig') }}
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Donut chart -->
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-trophy"></i>
+
+                    <h3 class="box-title">Parties Terminées - {{ player.points }} points</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div id="donut-chart" style="height: 300px;"></div>
+                </div>
+                <!-- /.box-body-->
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Donut chart -->
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-trophy"></i>
+
+                    <h3 class="box-title">Types de victoire</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div id="donut-chart2" style="height: 300px;"></div>
+                </div>
+                <!-- /.box-body-->
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-users"></i>
+
+                    <h3 class="box-title">Liste d'Amis</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <table class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                        <tbody>
+                        {% for friend in player.friend %}
+                            <tr role="row">
+                                <td><a href="{{ path('admin.player.show', {'id': friend.id}) }}" class="btn bg-gray btn-flat btn-sm">{{ friend.username }}</a></td><td>{{ friend.points }}</td>
+                            </tr>
+                        {% else %}
+
+                            <tr role="row">
+                                <td>Aucun ami</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body-->
+            </div>
+
+        </div>
+        <div class="col-sm-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <i class="fa fa-gamepad"></i>
+
+                    <h3 class="box-title">Liste des parties jouées</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <table class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                        <tbody>
+                        {% for game in player.game1 %}
+                            <tr role="row">
+                                <td><a href="{{ path('admin.game.show', {'id': game.id}) }}" class="btn bg-gray btn-flat btn-sm">Partie n°{{ game.id }}</a></td><td>{{ game.etat ? '<p class="text-green">Partie Terminée</p>' : '<p class="text-yellow">Partie En Cours</p>' }}</td>
+                            </tr>
+                        {% endfor %}
+                        {% for game in player.game2 %}
+                            <tr role="row">
+                                <td><a href="{{ path('admin.game.show', {'id': game.id}) }}" class="btn bg-gray btn-flat btn-sm">Partie n°{{ game.id }}</a></td><td>{{ game.etat ? '<p class="text-green">Partie Terminée</p>' : '<p class="text-yellow">Partie En Cours</p>' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.box-body-->
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            /*
+             * DONUT CHART
+             * -----------
+             */
+
+            var donutData = [
+                {label: '', data: {{ gagne }}, color: '#62a05e'},
+                {label: '', data: {{ perdu }}, color: '#cb3434'}
+            ];
+            $.plot('#donut-chart', donutData, {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        innerRadius: 0.5,
+                        label: {
+                            show: true,
+                            radius: 2 / 3,
+                            formatter: labelFormatter,
+                            threshold: 0.1
+                        }
+
+                    }
+                },
+                legend: {
+                    show: false
+                }
+            });
+
+            var donutData = [
+                {label: 'Clan', data: {{ victoire.maison }}, color: '#50a09d'},
+                {label: 'Ninjas', data: {{ victoire.ninja }}, color: '#5380a0'},
+                {label: 'Abandon', data: {{ victoire.abandon }}, color: '#54a072'}
+            ];
+            $.plot('#donut-chart2', donutData, {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        innerRadius: 0.5,
+                        label: {
+                            show: true,
+                            radius: 2 / 3,
+                            formatter: labelFormatter,
+                            threshold: 0.1
+                        }
+
+                    }
+                },
+                legend: {
+                    show: false
+                }
+            })
+            /*
+             * END DONUT CHART
+             */
+
+        })
+
+        /* END BAR CHART */
+        function labelFormatter(label, series) {
+            return '<div style="font-size:13px; text-align:center; padding:2px; color: #fff; font-weight: 600;">'
+                + label
+                + '<br>'
+                + Math.round(series.percent) + '%</div>'
+        }
+    </script>
+    <!-- ChartJS -->
+    <script src="{{ asset('bower_components/chart.js/Chart.js') }}"></script>
+    <!-- FastClick -->
+    <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="{{ asset('dist/js/demo.js') }}"></script>
+
+    <!-- FLOT CHARTS -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.js') }}"></script>
+    <!-- FLOT RESIZE PLUGIN - allows the chart to redraw when the window is resized -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.resize.js') }}"></script>
+    <!-- FLOT PIE PLUGIN - also used to draw donut charts -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.pie.js') }}"></script>
+    <!-- FLOT CATEGORIES PLUGIN - Used to draw bar charts -->
+    <script src="{{ asset('bower_components/Flot/jquery.flot.categories.js') }}"></script>
+{% endblock %}
